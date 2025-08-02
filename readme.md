@@ -9,7 +9,7 @@ A Python application using FastAPI to check your public IP address and verify if
 3. **Download Dependencies**: Download the required dependencies into the Virtual Env `venv` using `uv`.
 
 ```shell
-git clone https://github.com/grisha765/check-host.git
+git clone https://github.com/ergolyam/check-host.git
 cd check-host
 python -m venv .venv
 .venv/bin/python -m pip install uv
@@ -27,7 +27,7 @@ python -m venv .venv
 
 - Pull container:
     ```bash
-    podman pull ghcr.io/grisha765/check-host:latest
+    podman pull ghcr.io/ergolyam/check-host:latest
     ```
 
 - Deploy in container
@@ -38,7 +38,7 @@ python -m venv .venv
     --cap-add=NET_ADMIN \
     --network host \
     -e PORT="8000" \
-    ghcr.io/grisha765/check-host:latest
+    ghcr.io/ergolyam/check-host:latest
     ```
 
 #### Proxy on nginx
