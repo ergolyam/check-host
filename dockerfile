@@ -1,27 +1,11 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine AS builder
+FROM docker.io/node:24-alpine
 
-WORKDIR /app
+RUN adduser -D -h /home/appuser appuser
 
-COPY pyproject.toml uv.lock /app
+WORKDIR /home/appuser
 
-RUN uv sync --no-cache
+COPY --chown=appuser:appuser . .
 
+USER appuser
 
-FROM python:3.12-alpine AS main
-
-RUN apk add --no-cache nmap
-
-WORKDIR /app
-
-COPY --from=builder /app/.venv /app/.venv
-
-COPY . /app
-
-ENV PATH="/app/.venv/bin:$PATH"
-
-ENV PYTHONDONTWRITEBYTECODE=1
-
-ENV PYTHONUNBUFFERED=1
-
-CMD ["python", "main.py"]
-
+CMD ["node", "server.js"]
