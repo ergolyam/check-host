@@ -1,98 +1,81 @@
 # check-host
 
-A Python application using FastAPI to check your public IP address and verify if a specified port is open. This app provides a web interface and an API for checking the IP address and port status.
+Lightweight container image for showing the requester's visible IP address and checking whether a selected TCP port is reachable from the server.
 
-### Initial Setup
+## Initial Setup
 
-1. **Clone the repository**: Clone this repository using `git clone`.
-2. **Create Virtual Env**: Create a Python Virtual Env `venv` to download the required dependencies and libraries.
-3. **Download Dependencies**: Download the required dependencies into the Virtual Env `venv` using `uv`.
+### Build
 
-```shell
-git clone https://github.com/ergolyam/check-host.git
-cd check-host
-python -m venv .venv
-.venv/bin/python -m pip install uv
-.venv/bin/python -m uv sync
+```bash
+docker build -t check-host .
 ```
 
-### Deploy
+### Pull
 
-- Run:
+```bash
+docker pull ghcr.io/ergolyam/check-host:latest
+```
+
+## Run
+
+- With default settings:
     ```bash
-    PORT="8000" RELOAD="True" uv run main.py
+    docker run --rm -it \
+      -p 3000:3000 \
+      check-host
     ```
 
-#### Container
-
-- Pull container:
+- With custom listen port:
     ```bash
-    podman pull ghcr.io/ergolyam/check-host:latest
+    docker run --rm -it \
+      -p 8080:8080 \
+      -e PORT=8080 \
+      check-host
     ```
 
-- Deploy in container
+## Usage
+
+- Open the browser UI:
+    - http://localhost:3000
+
+- Request the visible IP address directly from the container:
     ```bash
-    podman run -d \
-    --name check-host \
-    --cap-add=NET_RAW \
-    --cap-add=NET_ADMIN \
-    --network host \
-    -e PORT="8000" \
-    ghcr.io/ergolyam/check-host:latest
+    curl http://localhost:3000/
     ```
 
-#### Proxy on nginx
+- Check whether TCP port `80` on the requester is reachable from the server:
+    ```bash
+    curl http://localhost:3000/port/80
+    ```
 
-- Create a file /etc/nginx/sites-enabled/example.com with the lines:
+- The port check response is plain text:
+    - `open` when the TCP connection succeeds.
+    - `closed` when the port is closed, filtered, or times out.
+
+- Port values must be integers from `1` to `65535`. Invalid port requests receive a JSON error.
+
+### Nginx reverse proxy
+
+- To expose check-host through Nginx, proxy requests to the container root and pass the original client address:
     ```nginx
     server {
         listen 80 default;
-        listen [::1]:80 default;
         server_name example.com;
-     
+
         location / {
-            proxy_pass http://[::1]:8000/;
+            proxy_pass http://127.0.0.1:3000/;
             proxy_set_header Host $http_host;
-            proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     }
     ```
 
-### Usage
+- With this configuration, use check-host through Nginx:
+    - http://example.com/
 
-- Open your web browser and navigate to http://localhost:8000
+## Environment variables
 
-#### API Endpoints
-
-- Get your public IP:
-    ```bash
-    curl http://localhost:8000/myip
-    ```
-    - Response:
-        ```json
-        {
-            "ip": "your-public-ip"
-        }
-        ```
-
-- Check a port's status:
-    ```bash
-    curl http://localhost:8000/check-port/80
-    ```
-    - Response
-        ```json
-        {
-            "host": "your-public-ip",
-            "port": 80,
-            "status": "open/closed/filtered/error"
-        }
-        ```
-
-### Features
-
-- Display the client's public IP address.
-- Check the status of a specific port (open, closed, or filtered).
-- Simple and user-friendly web interface.
-- API endpoints for programmatic access.
-
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3000` | HTTP listen port |
+| `HOST` | `0.0.0.0` | HTTP listen address |

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP and Port Checker</title>
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem("check-host-theme");
+
+                if (theme === "light" || theme === "dark") {
+                    document.documentElement.setAttribute("data-theme", theme);
+                }
+            } catch (error) {
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>IP and Port Checker</h1>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Theme: Auto">Auto</button>
+    </header>
+
+    <main class="shell">
+        <section class="ip-panel" aria-labelledby="ip-title">
+            <p id="ip-title" class="section-label">Your IP Address</p>
+            <button id="ip-address" class="ip-address" type="button" data-copy="{{IP}}" title="Copy IP address">{{IP}}</button>
+        </section>
+
+        <section class="port-panel" aria-labelledby="port-title">
+            <h2 id="port-title">Check Port</h2>
+            <form id="port-form" class="port-form">
+                <div class="form-row">
+                    <input type="number" id="port" name="port" min="1" max="65535" value="{{DEFAULT_PORT}}" aria-label="Port" required>
+                    <button id="check-button" class="check-btn" type="submit" aria-live="polite">Check</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="api-guide" aria-labelledby="api-title">
+            <h2 id="api-title">API</h2>
+            <div class="endpoint-row" role="button" tabindex="0" data-curl="curl http://{{HOST}}/">
+                <code>GET /</code>
+                <span>Returns your visible IP address as plain text.</span>
+            </div>
+            <div id="endpoint-port" class="endpoint-row" role="button" tabindex="0" data-curl="curl http://{{HOST}}/port/{{DEFAULT_PORT}}" data-curl-prefix="curl http://{{HOST}}/port/">
+                <code id="endpoint-port-label">GET /port/{{DEFAULT_PORT}}</code>
+                <span>Checks whether the selected TCP port is open.</span>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <a href="https://github.com/ergolyam/check-host" target="_blank" rel="noreferrer">Source</a>
+    </footer>
+
+    <script src="/assets/client.js"></script>
+</body>
+</html>
